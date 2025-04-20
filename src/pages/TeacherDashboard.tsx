@@ -31,6 +31,7 @@ const TeacherDashboard = () => {
     } else {
       updatedSubjects = [...subjects, newSubject];
     }
+    
     setSubjects(updatedSubjects);
     localStorage.setItem("subjects", JSON.stringify(updatedSubjects));
     setEditIndex(null);

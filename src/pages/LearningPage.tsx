@@ -8,19 +8,19 @@ const LearningPage = () => {
   const { subjectName } = useParams();
   const [topics, setTopics] = useState<any[]>([]);
   const [selectedTopic, setSelectedTopic] = useState<any>(null);
-  console.log('subjectName',subjectName)
+  console.log('subjectName', subjectName)
 
   useEffect(() => {
     const storedSubjects = JSON.parse(localStorage.getItem("subjects") || "[]");
-    console.log('storedSubjects',storedSubjects)
+    console.log('storedSubjects', storedSubjects)
 
 
     const subjectData = storedSubjects.find(
       (subject: any) =>
         subject.subjectName.trim().toLowerCase() === (subjectName?.trim().toLowerCase() ?? "")
     );
-    
-    console.log('subjectData',subjectData)
+
+    console.log('subjectData', subjectData)
     if (subjectData) {
       // Map points to match topics format
       const formattedTopics = subjectData.points.map((point: any) => ({
@@ -28,6 +28,8 @@ const LearningPage = () => {
         details: point.description,
         image: point.image,
         video: point.video,
+        codeSnippet: point.codeSnippet
+        
       }));
 
       setTopics(formattedTopics);
@@ -49,7 +51,7 @@ const LearningPage = () => {
       />
 
       {/* Right Side Details */}
-      <Box sx={{ marginTop: "64px", padding: 2, flexGrow: 1 }}>
+      <Box sx={{ marginTop: "64px", flexGrow: 1 }}>
         {selectedTopic ? (
           <DetailsComponent topic={selectedTopic} />
         ) : (
