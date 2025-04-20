@@ -11,8 +11,14 @@ import {
     InputLabel,
     FormControl,
     FormHelperText,
+    SelectChangeEvent,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import { auth, db } from "../firebase";
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
+import { doc, setDoc, getDoc } from "firebase/firestore";
+import { toast } from "react-toastify";
+
 
 const Login = () => {
     const navigate = useNavigate()
@@ -36,7 +42,7 @@ const Login = () => {
         setErrors({});
     };
 
-    const handleRoleChange = (event: React.ChangeEvent<{ value: unknown }>) => {
+    const handleRoleChange = (event: SelectChangeEvent<"student" | "teacher">) => {
         setRole(event.target.value as "student" | "teacher");
         setErrors({});
     };
@@ -64,21 +70,114 @@ const Login = () => {
         return Object.keys(tempErrors).length === 0;
     };
 
-    const handleLogin = () => {
+    // const handleLogin = () => {
+    //     if (validateLogin()) {
+    //         console.log("Login Data", { email, password, role });
+    //         navigate("/home");
+    //         alert("Login Successful!");
+    //     }
+    // };
+
+    // const handleRegister = () => {
+    //     if (validateRegister()) {
+    //         console.log("Registration Data", { name, email, password, role, rollNumber, employeeId });
+    //         alert("Registration Successful!");
+    //         navigate("/home");
+    //     }
+    // };
+
+    const handleLogin = async () => {
         if (validateLogin()) {
-            console.log("Login Data", { email, password, role });
-            navigate("/home");
-            alert("Login Successful!");
+            try {
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+
+                // Firestore se user ka role nikaalenge
+                const userDoc = await getDoc(doc(db, "users", user.uid));
+                if (userDoc.exists()) {
+                    const userData = userDoc.data();
+                    console.log("Logged in user data:", userData);
+
+                    // Ab tu role ke hisab se navigation ya permission laga sakta hai
+                    if (userData.role === "student") {
+                        navigate("/student-dashboard"); // example route
+                    } else if (userData.role === "teacher") {
+                        navigate("/teacher-dashboard"); // example route
+                    }
+                    // } else {
+                    //     navigate("/home");
+                    // }
+
+                    alert("Login Successful!");
+                } else {
+                    console.log("No such user document!");
+                    toast.error("User data not found! ❌");
+                }
+            } catch (error) {
+                console.error("Login Error:", error.message);
+                toast.error(error.message);
+            }
         }
     };
 
-    const handleRegister = () => {
+    // const handleRegister = async () => {
+    //     if (validateRegister()) {
+    //         try {
+    //             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    //             const user = userCredential.user;
+
+    //             // Firestore me user ka data save karenge
+    //             await setDoc(doc(db, "users", user.uid), {
+    //                 uid: user.uid,
+    //                 name,
+    //                 email,
+    //                 role,
+    //                 rollNumber: role === "student" ? rollNumber : "",
+    //                 employeeId: role === "teacher" ? employeeId : "",
+    //             });
+
+    //             toast.success("Registration Successful! 🎉");
+    //             navigate("/home"); // ya role ke hisab se navigate karna hai to alag logic laga sakte
+    //         } catch (error) {
+    //             console.error("Registration Error:", error.message);
+    //             toast.error(error.message);
+    //         }
+    //     }
+    // };
+
+    const handleRegister = async () => {
         if (validateRegister()) {
-            console.log("Registration Data", { name, email, password, role, rollNumber, employeeId });
-            alert("Registration Successful!");
-            navigate("/home");
+            try {
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+    
+                // Firestore me user ka data save karenge
+                await setDoc(doc(db, "users", user.uid), {
+                    uid: user.uid,
+                    name,
+                    email,
+                    role,
+                    rollNumber: role === "student" ? rollNumber : "",
+                    employeeId: role === "teacher" ? employeeId : "",
+                });
+    
+                toast.success("Registration Successful! 🎉");
+    
+                // Yaha role ke hisaab se navigate kar rahe hain
+                if (role === "student") {
+                    navigate("/student-dashboard");
+                } else if (role === "teacher") {
+                    navigate("/teacher-dashboard");
+                } else {
+                    navigate("/home"); // fallback default
+                }
+            } catch (error) {
+                console.error("Registration Error:", error.message);
+                toast.error(error.message);
+            }
         }
     };
+    
 
     return (
         <Box sx={{ width: "100%", minHeight: "100vh", backgroundColor: "#f0f2f5", display: "flex", justifyContent: "center", alignItems: "center" }}>
@@ -91,7 +190,7 @@ const Login = () => {
                 {/* Role Selector */}
                 <FormControl fullWidth sx={{ mt: 3 }}>
                     <InputLabel>Role</InputLabel>
-                    <Select value={role} label="Role" onChange={() => { handleRoleChange }}>
+                    <Select value={role} label="Role" onChange={handleRoleChange}>
                         <MenuItem value="student">Student</MenuItem>
                         <MenuItem value="teacher">Teacher</MenuItem>
                     </Select>

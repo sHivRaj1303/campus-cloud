@@ -5,6 +5,7 @@ import Navbar from "../components/Navbar";
 import LearningPage from "../pages/LearningPage";
 import Login from "../auth/Login";
 import TeacherDashboard from "../pages/TeacherDashboard";
+import Profile from "../pages/Profile";
 
 
 const AppRoutes = () => {
@@ -16,10 +17,11 @@ const AppRoutes = () => {
     <>
       {showNavbar && <Navbar />}
       <Routes>
-        <Route path="/dashboard" element={<Home />} />
+        <Route path="/student-dashboard" element={<Home />} />
         <Route path="/" element={<Login />} />
         <Route path="/learning/:subjectName" element={<LearningPage />} />
-        <Route path="/teacher/dashboard" element={<TeacherDashboard />} />
+        <Route path="/teacher-dashboard" element={<TeacherDashboard />} />
+        <Route path="/profile" element={<Profile />} />
       </Routes>
     </>
   );
