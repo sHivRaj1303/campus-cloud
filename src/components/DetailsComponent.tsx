@@ -119,7 +119,7 @@ const DetailsComponent = ({ topic }) => {
   }, [topic?.codeSnippet]);
 
   return (
-    <Grid container bgcolor="#0e121b" p={4} minHeight="93vh">
+    <Grid container bgcolor="#0e121b" p={4} minHeight="93vh" maxWidth={'80vw'}>
       <Box width="100%">
         <Typography variant="h4" sx={{ color: 'white' }} fontWeight="bold" gutterBottom>
           {topic?.name}
@@ -131,7 +131,7 @@ const DetailsComponent = ({ topic }) => {
 
         {/* Image show if available */}
         {topic?.image && (
-          <Box mt={3}>
+          <Box mt={3} width={'100%'} >
             <img
               src={topic.image}
               alt="Topic"
@@ -146,11 +146,11 @@ const DetailsComponent = ({ topic }) => {
 
         {/* Video show if available */}
         {topic?.video && (
-          <Box mt={3}>
+          <Box mt={3} width={'100%'}>
             {isYouTubeVideo(topic.video) ? (
               <iframe
-                width="100%"
-                height="400px"
+                width="'100%"
+                height="200px"
                 style={{
                   borderRadius: "12px",
                   border: "none",
@@ -179,12 +179,11 @@ const DetailsComponent = ({ topic }) => {
           </Box>
         )}
 
-        {/* Code Snippet display and copy button */}
         {topic?.codeSnippet && (
-          <Box mt={3} sx={{ bgcolor: "#1f2937", padding: 1, borderRadius: "12px", position: "relative" }}>
-            <Typography variant="h6" sx={{ color: "white", mb: 1 }}>
+          <Box mt={3} sx={{  borderRadius: "12px", position: "relative" }} maxWidth={'100%'}>
+            {/* <Typography variant="h6" sx={{ color: "white", mb: 1 }}>
               Code Snippet
-            </Typography>
+            </Typography> */}
             {/* Code block with syntax highlighting */}
             <Box
               component="pre"
@@ -208,13 +207,11 @@ const DetailsComponent = ({ topic }) => {
               <IconButton
                 sx={{
                   position: "absolute",
-                  top: 8,
-                  right: 8,
-                  bgcolor: "rgba(255, 255, 255, 0.3)",
-                  "&:hover": { bgcolor: "rgba(255, 255, 255, 0.5)" },
+                  top:0,
+                  right: 6,
                 }}
               >
-                <CopyAllIcon sx={{ color: "#10b981" }} />
+                <CopyAllIcon sx={{ color: "gray" }} />
               </IconButton>
             </CopyToClipboard>
           </Box>

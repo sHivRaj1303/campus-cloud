@@ -75,18 +75,70 @@ const LearningPage = () => {
   const { subjectName } = useParams();
   const [topics, setTopics] = useState<any[]>([]);
   const [selectedTopic, setSelectedTopic] = useState<any>(null);
+  const [selectedSubject, setSelectedSubject] = useState<any>({})
 
+
+  console.log('topics', topics)
+
+  // useEffect(() => {
+  //   const fetchSubjects = async () => {
+  //     try {
+  //       const q = query(
+  //         collection(db, "subjects"),
+  //         // where("lowercaseSubjectName", "==", (subjectName ?? "").toLowerCase())
+  //       );
+
+  //       const querySnapshot = await getDocs(q);
+
+  //       console.log("Total documents found:", querySnapshot.size);
+  //       querySnapshot.forEach(doc => {
+  //         console.log(doc.id, " => ", doc.data());
+  //       });
+
+  //       console.log('querySnapshot  22', querySnapshot)
+  //       if (!querySnapshot.empty) {
+  //         const subjectDoc = querySnapshot.docs[0].data();
+  //         console.log('subjectDoc', subjectDoc)
+
+  //         const formattedTopics = subjectDoc.points.map((point: any) => ({
+  //           name: point.title,
+  //           details: point.description,
+  //           image: point.image,
+  //           video: point.video,
+  //           codeSnippet: point.codeSnippet,
+  //         }));
+
+  //         setTopics(formattedTopics);
+  //         setSelectedTopic(formattedTopics[0]); // Default first topic
+  //       } else {
+  //         console.log("No subject found for:", subjectName);
+  //       }
+  //     } catch (error) {
+  //       console.error("Error fetching subject:", error);
+  //     }
+  //   };
+
+  //   if (subjectName) {
+  //     fetchSubjects();
+  //   }
+  // }, [subjectName]);
   useEffect(() => {
     const fetchSubjects = async () => {
       try {
-        const q = query(
-          collection(db, "subjects"),
-          where("subjectName", "==", subjectName)
-        );
+        const querySnapshot = await getDocs(collection(db, "subjects"));
 
-        const querySnapshot = await getDocs(q);
-        if (!querySnapshot.empty) {
-          const subjectDoc = querySnapshot.docs[0].data();
+        console.log("Total documents found:", querySnapshot.size);
+
+        const allSubjects = querySnapshot.docs.map(doc => doc.data());
+        console.log('All subjects:', allSubjects);
+
+        // 🔥 Local filtering
+        const subjectDoc = allSubjects.find(subject =>
+          (subject.subjectName ?? "").toLowerCase() === (subjectName ?? "").toLowerCase()
+        );
+        setSelectedSubject(subjectDoc)
+        if (subjectDoc) {
+          console.log('Matched subjectDoc:', subjectDoc);
 
           const formattedTopics = subjectDoc.points.map((point: any) => ({
             name: point.title,
@@ -111,6 +163,8 @@ const LearningPage = () => {
     }
   }, [subjectName]);
 
+
+
   const handleTopicClick = (topic: any) => {
     setSelectedTopic(topic);
   };
@@ -121,6 +175,7 @@ const LearningPage = () => {
       <DrawerComponent
         open={true}
         topics={topics}
+        selectedSubject={selectedSubject}
         onTopicClick={handleTopicClick}
       />
 

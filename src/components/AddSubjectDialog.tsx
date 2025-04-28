@@ -12,6 +12,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 const AddSubjectDialog = ({ onClose, onAddSubject, existingSubject }) => {
   const [subjectName, setSubjectName] = useState(existingSubject?.subjectName || "");
   const [points, setPoints] = useState(existingSubject?.points || []);
+  const [subjectIcon, setSubjectIcon] = useState(existingSubject?.subjectIcon || "");
 
   // Handle adding a new point
   const handleAddPoint = () => {
@@ -34,7 +35,7 @@ const AddSubjectDialog = ({ onClose, onAddSubject, existingSubject }) => {
 
   const handleSubmit = () => {
     if (subjectName.trim() && points.length > 0 && points.every(point => point.title.trim() && point.description.trim())) {
-      onAddSubject({ subjectName, points });
+      onAddSubject({ subjectName, subjectIcon, points });
       onClose();
     } else {
       alert("Please make sure all points have a title and description.");
@@ -61,10 +62,45 @@ const AddSubjectDialog = ({ onClose, onAddSubject, existingSubject }) => {
         InputProps={{ style: { color: "white" } }}
         InputLabelProps={{ style: { color: "#9ca3af" } }}
       />
+      {/* 🆕 Subject Icon Upload */}
+      <Button
+        color="inherit"
+        component="label"
+        variant="outlined"
+        sx={{margin:'16px 16px 16px 0' }}
+      >
+        Upload Subject Icon
+        <input
+          type="file"
+          hidden
+          accept="image/*"
+          onChange={(e: any) => {
+            const file = e.target.files[0];
+            if (file) {
+              const reader = new FileReader();
+              reader.onloadend = () => {
+                setSubjectIcon(reader.result); // store base64 image
+              };
+              reader.readAsDataURL(file);
+            }
+          }}
+        />
+      </Button>
+
+      {subjectIcon && (
+        <Box sx={{ mb: 3 }}>
+          <Typography variant="subtitle2" sx={{ mb: 1 }}>
+            Preview:
+          </Typography>
+          <img src={subjectIcon} alt="Subject Icon Preview" style={{ maxWidth: "100px", height: "auto" }} />
+        </Box>
+      )}
+
+
 
       {points.map((point, index) => (
         <Paper key={index} sx={{ p: 2, mb: 2, bgcolor: "#1f2937" }}>
-          <Typography variant="subtitle1" sx={{ mb: 1 }}>
+          <Typography variant="subtitle1" sx={{ mb: 1 }} color="#66d9ef">
             Edit Point {index + 1}
           </Typography>
           <TextField
@@ -139,16 +175,17 @@ const AddSubjectDialog = ({ onClose, onAddSubject, existingSubject }) => {
       <Button
         startIcon={<AddCircleIcon />}
         onClick={handleAddPoint}
-        sx={{ mb: 2, bgcolor: "#10b981", ":hover": { bgcolor: "#059669" } }}
+        variant="outlined"
+        sx={{margin:'16px 16px 16px 0' }}
       >
         Add Another Point
       </Button>
 
       <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 2 }}>
-        <Button variant="outlined" color="error" onClick={onClose}>
+        <Button variant="outlined" color="inherit" onClick={onClose}>
           Cancel
         </Button>
-        <Button variant="contained" color="primary" onClick={handleSubmit}>
+        <Button variant="contained" color="success" onClick={handleSubmit}>
           Save
         </Button>
       </Box>
